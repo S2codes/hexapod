@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexapod Mission Planner</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+
+<body>
+
+    <h1 class="heading">ONESTEP - Hexapod Mission Planner</h1>
+
+    <div class="container">
+
+        <div class="panel">
+            <div class="box-rounded">
+                <div class="camera-view">Camera Feed</div>
+            </div>
+            <div class="controls">
+                <button onclick="control('rotateLeft')">↺ <span class="toolTip">L</span> </button>
+                <button onclick="control('forward')">Forward <span class="toolTip">W</span></button>
+                <button onclick="control('rotateRight')">↻ <span class="toolTip">R</span></button>
+                <button onclick="control('left')">Left <span class="toolTip">A</span></button>
+                <button onclick="control('backward')">Backward <span class="toolTip">S</span></button>
+                <button onclick="control('right')">Right <span class="toolTip">D</span></button>
+            </div>
+
+            <div class="currentControl" id="currentControl">
+                Forward
+            </div>
+
+        </div>
+        <div class="panel">
+            <h2 class="subHeading">Mission Execution</h2>
+            <div class="btnGroup">
+
+                <!-- <button onclick="executeMission()">Start</button> -->
+                <button onclick="extendLegMission()">Start</button>
+                <button onclick="pauseMission()">Pause</button>
+                <button onclick="stopMission()">Stop</button>
+                <button onclick="sitMission()">Sit</button>
+                <button onclick="standMission()">Stand</button>
+                <button onclick="SwingPhase()">Swing Phase</button>
+                <button onclick="StancePhase()">Stance Phase</button>
+
+            </div>
+            <div class="slider-container">
+                <h3>Speed Control</h3>
+                <input type="range" id="speed-slider" min="0" max="100" value="50">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Slow</span>
+                    <span>Fast</span>
+                </div>
+            </div>
+            <h3>Status</h3>
+            <!-- <div id="status">
+                <p><i class="icon bi bi-battery-half"></i> Battery: 75%</p>
+                <p><i class="icon bi bi-wifi"></i> Signal Strength: Good</p>
+                <p><i class="icon bi bi-compass"></i> Current Position: X: 10, Y: 15</p>
+                <p><i class="icon bi bi-compass"></i> Orientation: 45°</p>
+            </div> -->
+
+            <div class="status-container">
+                <div class="status-item">
+                    <div class="status-icon">🔋</div>
+                    <!-- <i class="status-icon bi bi-battery-full"></i> -->
+                    <!-- <i class="bi bi-battery"></i> -->
+                    <div class="status-label">Battery</div>
+                    <div id="battery" class="status-value">75%</div>
+                </div>
+                <div class="status-item">
+                    <!-- <div class="status-icon">📶</div> -->
+                    <!-- <i class="icon bi bi-wifi status-icon"></i> -->
+                    <i class="bi bi-wifi-off status-icon"></i>
+                    <div class="status-label">Connection</div>
+                    <div id="signal" class="status-value">Good</div>
+                </div>
+                <div class="status-item">
+                    <!-- <div class="status-icon">📍</div> -->
+                    <img src="./assets/img/gyroscope.png" class="status-img" alt="">
+                    <div class="status-label">Current Position</div>
+                    <div id="position" class="status-value">X: 10, Y: 15, Z: 5</div>
+                </div>
+                <div class="status-item">
+                    <div class="status-icon">🧭</div>
+                    <div class="status-label">Orientation</div>
+                    <div id="orientation" class="status-value">45°</div>
+                </div>
+            </div>
+
+            <div class="missionPlanerContainer">
+                <h3>Mission Plan</h3>
+                <div>
+                    <button onclick="addStep('Move Forward')">Forward</button>
+                    <button onclick="addStep('Move Backward')">Backward</button>
+                    <button onclick="addStep('Turn Left')">Left</button>
+                    <button onclick="addStep('Turn Right')">Right</button>
+                </div>
+                <h3>Mission Steps</h3>
+                <!-- <ul id="mission-steps"></ul> -->
+
+                <div id="mission-steps"></div>
+                <button class="control-btn" onclick="executeMission()">Execute Mission</button>
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+
+    <script>
+        let missionSteps = [];
+        let currentStep = 0;
+        let isExecuting = false;
+
+        // let dnsName = 'onestep.local';
+        let dnsName = '192.168.4.1';
+        var connection = new WebSocket(`ws://${dnsName}:81/`);
+
+        console.log("connection : ");
+        console.log(connection);
+
+        connection.onopen = function () {
+            console.log("WebSocket connection is open now.");
+        };
+
+        connection.onerror = function (error) {
+            console.log("WebSocket error: ", error);
+        };
+
+        connection.onclose = function () {
+            console.log("WebSocket connection closed.");
+        };
+
+        connection.onmessage = function (event) {
+            console.log("Message from server: ", event.data);
+        };
+
+
+
+        function addStep(step) {
+            missionSteps.push(step);
+            updateMissionStepsList();
+        }
+
+        function updateMissionStepsList() {
+            const list = document.getElementById('mission-steps');
+            list.innerHTML = '';
+            missionSteps.forEach((step, index) => {
+                const li = document.createElement('li');
+                li.textContent = step;
+                if (index === currentStep && isExecuting) {
+                    li.classList.add('active-step');
+                }
+                list.appendChild(li);
+            });
+        }
+
+
+        function executeMission() {
+            isExecuting = true;
+            currentStep = 0;
+            // updateMissionStepsList();
+            console.log("start ...");
+            let missionData = {
+                "servo0": 150, //coxa 1 anticlockwise
+                "servo1": 90, //coxa 2 anticlockwise
+                "servo2": 50,  //coxa 3 anticlockwise
+                "servo3": 150,//coxa 4 anticlockwise
+                "servo4": 90, //coxa 5 anticlockwise
+                "servo5": 50, //coxa 6 anticlockwise
+                "servo6": 180, //femur 1
+                "servo7": 180, //femur 2
+                "servo8": 180, //femur 3
+                "servo9": 0, // femur 4
+                "servo10": 0, // femur 5
+                "servo11": 0, //femur 6
+                "servo12": 0,
+                "servo13": 0,
+                "servo14": 180,
+                "servo15": 180,
+                "servo16": 90,
+                "servo17": 80
+            };
+            let jsondData = JSON.stringify(missionData);
+            console.log(jsondData);
+            console.log(typeof (jsondData));
+            connection.send(jsondData)
+        }
+
+        function extendLegMission() {
+            isExecuting = true;
+            currentStep = 0;
+            // updateMissionStepsList();
+            console.log("Siting ...");
+            let missionData = {
+                "servo2": 135, // Leg1coxa 180 -> servo go  front | 0 -> servo go  back  
+                "servo1": 90, //  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down 
+                "servo0": 90, //  Leg1Tibia 180 ->   servo go down | 0 ->   servo go up
+
+                "servo3": 90, // Leg3Tibia || 180 ->  down and 0 -> up 
+                "servo4": 90, //  Leg3Femur || 180 ->  up and 0 -> down
+                "servo5": 90, //  Leg3coxa || 180 ->  front and 0 -> back
+
+                "servo6": 90,
+                "servo7": 90,
+                "servo8": 90,
+                "servo9": 90,
+
+                "servo10": 90,  // Leg4coxa |  180 - back or 0 - front
+                "servo11": 95,  // Leg4Femur |  0 - up or 180 -down 
+                "servo12": 90,  // Leg4Tibia |  0 - down  or 180 up   
+
+                "servo13": 45, // Leg2coxa | 180 - back or 0 -> front    
+                "servo14": 90, // Leg2Femur |  0 - up or 180 -down
+                "servo15": 90, // Leg2Tibia |  0 - down  
+
+                "servo16": 110,  // Leg6Tibia |  0 -> down  and 180 -> up 
+                "servo17": 90,  // Leg6Femur |  0 -  up and 180 -> down 
+                "servo18": 155,  // Leg6coxa  | 180 -> back and 0->  
+
+                "servo19": 90,
+                "servo20": 90,
+                "servo21": 90,
+
+                "servo22": 90,
+                "servo23": 90,
+                "servo24": 90,
+
+                "servo25": 90,
+                "servo26": 90,
+                "servo27": 90,
+
+                "servo28": 90,
+
+                "servo29": 65,   //  Leg5coxa  | 180 - front | 0 -> back
+                "servo30": 120,  //  Leg5Femur |  180 ->  up | 0 -> down 
+                "servo31": 90, //   Leg5Tibia |  0 -> up | 180 -> down 
+
+
+            };
+
+
+            let jsondData = JSON.stringify(missionData);
+
+            // console.log(jsondData);
+            // console.log(typeof (jsondData));
+            connection.send(jsondData)
+        }
+
+
+        function sitMission() {
+            isExecuting = true;
+            currentStep = 0;
+            // updateMissionStepsList();
+            console.log("Siting ...");
+            let missionData = {
+                "servo2": 135, // Leg1coxa 180 -> servo go  front | 0 -> servo go  back  
+                "servo1": 180, //  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down 
+                "servo0": 180, //  Leg1Tibia 180 ->   servo go down | 0 ->   servo go up
+
+                "servo5": 90, //  Leg3coxa || 180 ->  front and 0 -> back
+                "servo4": 180, //  Leg3Femur || 180 ->  up and 0 -> down
+                "servo3": 180, // Leg3Tibia || 180 ->  down and 0 -> up 
+
+                "servo6": 90,
+                "servo7": 90,
+                "servo8": 90,
+                "servo9": 90,
+
+                "servo10": 90,  // Leg4coxa |  180 - back or 0 - front
+                "servo11": 0,  // Leg4Femur |  0 - up or 180 -down 
+                "servo12": 0,  // Leg4Tibia |  0 - down  or 180 up   
+
+                "servo13": 45, // Leg2coxa | 180 - back or 0 -> front    
+                "servo14": 0, // Leg2Femur |  0 - up or 180 -down
+                "servo15": 0, // Leg2Tibia |  0 - down  
+
+                "servo29": 65,   //  Leg5coxa  | 180 - front | 0 -> back
+                "servo30": 180,  //  Leg5Femur |  180 ->  up | 0 -> down 
+                "servo31": 180, //   Leg5Tibia |  0 -> up | 180 -> down 
+
+                "servo18": 155,  // Leg6coxa  | 180 -> back and 0->  
+                "servo17": 5,  // Leg6Femur |  0 -  up and 180 -> down 
+                "servo16": 5,  // Leg6Tibia |  0 -> down  and 180 -> up 
+
+                "servo19": 90,
+                "servo20": 90,
+                "servo21": 90,
+
+                "servo22": 90,
+                "servo23": 90,
+                "servo24": 90,
+
+                "servo25": 90,
+                "servo26": 90,
+                "servo27": 90,
+
+                "servo28": 90,
+
+
+
+            };
+
+
+            let jsondData = JSON.stringify(missionData);
+
+            // console.log(jsondData);
+            // console.log(typeof (jsondData));
+            // connection.send(jsondData)
+            connection.send("sit")
+        }
+
+        function standMission() {
+            isExecuting = true;
+            currentStep = 0;
+            // updateMissionStepsList();
+            console.log("Standing ... ");
+            let missionData = {
+                "servo2": 135, // Leg1coxa 180 -> servo go  front | 0 -> servo go  back  
+                "servo1": 130, //  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down 
+                "servo0": 180, //  Leg1Tibia 180 ->   servo go down | 0 ->   servo go up
+
+
+                "servo13": 60, // Leg2coxa | 180 - back or 0 -> front    
+                "servo14": 45, // Leg2Femur |  0 - up or 180 -down
+                "servo15": 10, // Leg2Tibia |  0 - down  
+
+                "servo5": 90, //  Leg3coxa || 180 ->  front and 0 -> back
+                "servo4": 140, //  Leg3Femur || 180 ->  up and 0 -> down
+                "servo3": 160, // Leg3Tibia || 180 ->  down and 0 -> up 
+
+                "servo10": 90,  // Leg4coxa |  180 - back or 0 - front
+                "servo11": 52,  // Leg4Femur |  0 - up or 180 -down 
+                "servo12": 20,  // Leg4Tibia |  0 - down  or 180 up   
+
+
+                "servo29": 65,   //  Leg5coxa  | 180 - front | 0 -> back
+                "servo30": 150,  //  Leg5Femur |  180 ->  up | 0 -> down 
+                "servo31": 180, //   Leg5Tibia |  0 -> up | 180 -> down 
+
+                "servo18": 165,  // Leg6coxa  | 180 -> back and 0->  
+                "servo17": 45,  // Leg6Femur |  0 -  up and 180 -> down 
+                "servo16": 30,  // Leg6Tibia |  0 -> down  and 180 -> up 
+
+                "servo19": 90,
+                "servo20": 90,
+                "servo21": 90,
+
+                "servo6": 90,
+                "servo7": 90,
+                "servo8": 90,
+                "servo9": 90,
+
+                "servo22": 90,
+                "servo23": 90,
+                "servo24": 90,
+
+                "servo25": 90,
+                "servo26": 90,
+                "servo27": 90,
+
+                "servo28": 90,
+
+
+
+            };
+
+            let jsondData = JSON.stringify(missionData);
+            console.log(jsondData);
+            console.log(typeof (jsondData));
+            // connection.send(jsondData)
+            connection.send("stand")
+        }
+
+
+        function SwingPhase() {
+            isExecuting = true;
+            currentStep = 0;
+            // updateMissionStepsList();
+            console.log("SwingPhase ... ");
+
+            let missionData = {
+                "servo2": 150, // 135, // int -135 -> 150  Leg1coxa 180 -> servo go  front | 0 -> servo go  back  
+                "servo1": 160, // 130, // int-130 -> 150  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down 
+                "servo0": 170, // 180, //  Leg1Tibia 180 ->   servo go down | 0 ->   servo go up
+
+
+                "servo13": 50, //60, // Leg2coxa | 180 - back or 0 -> front    
+                "servo14": 30, //45, // Leg2Femur |  0 - up or 180 -down
+                "servo15": 20, //10, // Leg2Tibia |  0 - down  
+
+                "servo5": 115, // 90,  //  Leg3coxa || 180 ->  front and 0 -> back
+                "servo4": 170, // 140,  //  Leg3Femur || 180 ->  up and 0 -> down
+                "servo3": 150, // 160,  // Leg3Tibia || 180 ->  down and 0 -> up 
+
+                "servo10": 80, //90,  // Leg4coxa |  180 - back or 0 - front
+                "servo11": 37, //52,  // Leg4Femur |  0 - up or 180 -down 
+                "servo12": 30, //20,  // Leg4Tibia |  0 - down  or 180 up   
+
+
+                "servo29": 115,// 65,   //  Leg5coxa  | 180 - front | 0 -> back
+                "servo30": 180,// 150,  //  Leg5Femur |  180 ->  up | 0 -> down 
+                "servo31": 170,// 180, //   Leg5Tibia |  0 -> up | 180 -> down 
+
+                "servo18": 150, // 165, // Leg6coxa  | 180 -> back and 0->  
+                "servo17": 30, // 45,  // Leg6Femur |  0 -  up and 180 -> down 
+                "servo16": 40, // 30,  // Leg6Tibia |  0 -> down  and 180 -> up 
+
+                "servo19": 90,
+                "servo20": 90,
+                "servo21": 90,
+
+                "servo6": 90,
+                "servo7": 90,
+                "servo8": 90,
+                "servo9": 90,
+
+                "servo22": 90,
+                "servo23": 90,
+                "servo24": 90,
+
+                "servo25": 90,
+                "servo26": 90,
+                "servo27": 90,
+
+                "servo28": 90,
+
+
+
+            };
+
+            let jsondData = JSON.stringify(missionData);
+            console.log(jsondData);
+            console.log(typeof (jsondData));
+            connection.send(jsondData)
+        }
+
+        function StancePhase() {
+            isExecuting = true;
+            currentStep = 0;
+            // updateMissionStepsList();
+            console.log("Stance Phase ... ");
+            let missionData = {
+                "servo0": 95, //coxa 1 anticlockwise
+                "servo1": 0, //coxa 2 anticlockwise
+                "servo2": 0,  //coxa 3 anticlockwise
+                "servo3": 130,//coxa 4 anticlockwise
+                "servo4": 130, //coxa 5 anticlockwise
+                "servo5": 130, //coxa 6 anticlockwise
+                "servo6": 90, //femur 1
+                "servo7": 90, //femur 2
+                "servo8": 90, //femur 3
+                "servo9": 90, // femur 4
+                "servo10": 90, // femur 5
+                "servo11": 90, //femur 6
+                "servo12": 90,
+                "servo13": 90,
+                "servo14": 90,
+                "servo15": 90,
+                "servo16": 90,
+                "servo17": 80
+            };
+            let jsondData = JSON.stringify(missionData);
+            console.log(jsondData);
+            console.log(typeof (jsondData));
+            connection.send(jsondData)
+        }
+
+
+        function pauseMission() {
+            isExecuting = false;
+            // updateMissionStepsList();
+            // In a real application, you would pause the robot's movement here
+        }
+
+        function stopMission() {
+            isExecuting = false;
+            currentStep = 0;
+            // updateMissionStepsList();
+            // In a real application, you would stop the robot and reset its position here
+        }
+
+        function control(direction) {
+            console.log('Control:', direction);
+            connection.send(direction)
+            // In a real application, you would send control commands to the robot here
+        }
+
+        // Create grid cells
+        // const grid = document.querySelector('.mission-grid');
+        // for (let i = 0; i < 25; i++) {
+        //     const cell = document.createElement('div');
+        //     cell.classList.add('grid-cell');
+        //     grid.appendChild(cell);
+        // }
+
+
+        // Speed slider
+        const speedSlider = document.getElementById('speed-slider');
+        speedSlider.addEventListener('input', function () {
+            console.log('Speed set to:', this.value);
+            // In a real application, you would adjust the robot's speed here
+        });
+
+
+
+        // Function to handle keyboard shortcuts
+        const currentControl = document.getElementById('currentControl')
+        document.addEventListener('keydown', function (event) {
+            switch (event.key.toLowerCase()) {
+                case 'w':
+                    control('forward');
+                    currentControl.innerText = 'forward'
+                    break;
+                case 'a':
+                    currentControl.innerText = 'left'
+                    control('left');
+                    break;
+                case 's':
+                    control('backward');
+                    currentControl.innerText = 'backward'
+                    break;
+                case 'd':
+                    control('right');
+                    currentControl.innerText = 'right'
+                    break;
+                case 'r':
+                    control('rotateRight');
+                    currentControl.innerText = 'rotate Right'
+                    break;
+                case 'l':
+                    currentControl.innerText = 'rotate Left'
+                    control('rotateLeft');
+                    break;
+            }
+        });
+
+
+        function executeMission() {
+            const missionSteps = document.getElementById('mission-steps');
+            console.log('Executing mission with ' + missionSteps.children.length + ' steps');
+            // Here you would typically send the mission steps to the hexapod for execution
+            missionSteps.innerHTML = ''; // Clear mission steps after execution
+        }
+
+
+
+    </script>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+<!-- for a hexapod
+
+if Leg labels: odd number legs are on the left side ( i = 1 , 3 , 5 ), 
+while even number legs are on the right side ( i = 2 , 4 , 6 ). 
+
+then give a flowchart or algorithm to move forward of hexapod
+
+ -->

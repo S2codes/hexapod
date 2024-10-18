@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monochrome Hexarobot Mission Planner</title>
+    <link href="https://cdn.jsdelivr.net/npm/lucide-static@0.321.0/font/lucide.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #000000;
+            --secondary-color: #ffffff;
+            --highlight-color: #ff6b6b;
+            --background-color: #f0f0f0;
+            --text-color: #333333;
+            --panel-background: #ffffff;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .panel {
+            background-color: var(--panel-background);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+        .control-btn {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s, color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .control-btn:hover {
+            background-color: var(--highlight-color);
+            color: var(--primary-color);
+        }
+        .control-btn i {
+            margin-right: 5px;
+        }
+        #camera-feed {
+            width: 100%;
+            height: 300px;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            border-radius: 8px;
+        }
+        #gyro-values {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .gyro-value {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            padding: 10px;
+            border-radius: 4px;
+        }
+        #mission-planner {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        #mission-steps {
+            height: 200px;
+            border: 1px solid var(--primary-color);
+            padding: 10px;
+            overflow-y: auto;
+            background-color: var(--secondary-color);
+            border-radius: 4px;
+        }
+        .shortcut-key {
+            font-size: 0.8em;
+            background-color: var(--highlight-color);
+            color: var(--primary-color);
+            padding: 2px 5px;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel">
+            <h2>Hexapod Control</h2>
+            <button class="control-btn tooltip" onclick="controlHexapod('forward')">
+                <i class="lucide-arrow-up"></i> Forward <span class="shortcut-key">W</span>
+                <span class="tooltiptext">Press 'W' key</span>
+            </button>
+            <button class="control-btn tooltip" onclick="controlHexapod('backward')">
+                <i class="lucide-arrow-down"></i> Backward <span class="shortcut-key">S</span>
+                <span class="tooltiptext">Press 'S' key</span>
+            </button>
+            <button class="control-btn tooltip" onclick="controlHexapod('left')">
+                <i class="lucide-arrow-left"></i> Left <span class="shortcut-key">A</span>
+                <span class="tooltiptext">Press 'A' key</span>
+            </button>
+            <button class="control-btn tooltip" onclick="controlHexapod('right')">
+                <i class="lucide-arrow-right"></i> Right <span class="shortcut-key">D</span>
+                <span class="tooltiptext">Press 'D' key</span>
+            </button>
+            <button class="control-btn tooltip" onclick="controlHexapod('stop')">
+                <i class="lucide-square"></i> Stop <span class="shortcut-key">X</span>
+                <span class="tooltiptext">Press 'X' key</span>
+            </button>
+        </div>
+        <div class="panel">
+            <h2>Live Camera Feed</h2>
+            <div id="camera-feed">
+                <i class="lucide-video" style="font-size: 48px;"></i>
+                [Live camera feed would be displayed here]
+            </div>
+        </div>
+        <div class="panel">
+            <h2>Gyro Sensor Values</h2>
+            <div id="gyro-values">
+                <div class="gyro-value">X: <span id="gyro-x">0.00</span></div>
+                <div class="gyro-value">Y: <span id="gyro-y">0.00</span></div>
+                <div class="gyro-value">Z: <span id="gyro-z">0.00</span></div>
+            </div>
+        </div>
+        <div class="panel">
+            <h2>Robotics Details</h2>
+            <p><i class="lucide-battery-charging"></i> Battery Level: <span id="battery-level">85%</span></p>
+            <p><i class="lucide-thermometer"></i> Motor Temperature: <span id="motor-temp">32°C</span></p>
+            <p><i class="lucide-map-pin"></i> Current Position: <span id="current-position">X: 10, Y: 20</span></p>
+        </div>
+        <div class="panel" style="grid-column: 1 / -1;">
+            <h2>Mission Planner</h2>
+            <div id="mission-planner">
+                <div>
+                    <h3>Available Commands</h3>
+                    <button class="control-btn" onclick="addMissionStep('Move Forward')">
+                        <i class="lucide-arrow-up"></i> Move Forward
+                    </button>
+                    <button class="control-btn" onclick="addMissionStep('Turn Left')">
+                        <i class="lucide-arrow-left"></i> Turn Left
+                    </button>
+                    <button class="control-btn" onclick="addMissionStep('Turn Right')">
+                        <i class="lucide-arrow-right"></i> Turn Right
+                    </button>
+                    <button class="control-btn" onclick="addMissionStep('Take Photo')">
+                        <i class="lucide-camera"></i> Take Photo
+                    </button>
+                </div>
+                <div>
+                    <h3>Mission Steps</h3>
+                    <div id="mission-steps"></div>
+                    <button class="control-btn" onclick="executeMission()">
+                        <i class="lucide-play"></i> Execute Mission
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function controlHexapod(direction) {
+            console.log('Hexapod moving: ' + direction);
+            // Here you would typically send a command to the actual hexapod
+        }
+
+        function updateGyroValues() {
+            // In a real application, these values would come from the gyro sensor
+            document.getElementById('gyro-x').textContent = (Math.random() * 2 - 1).toFixed(2);
+            document.getElementById('gyro-y').textContent = (Math.random() * 2 - 1).toFixed(2);
+            document.getElementById('gyro-z').textContent = (Math.random() * 2 - 1).toFixed(2);
+        }
+
+        function updateRoboticsDetails() {
+            // In a real application, these values would come from the robot's sensors
+            document.getElementById('battery-level').textContent = Math.floor(Math.random() * 100) + '%';
+            document.getElementById('motor-temp').textContent = (Math.random() * 20 + 25).toFixed(1) + '°C';
+            document.getElementById('current-position').textContent = 'X: ' + Math.floor(Math.random() * 100) + ', Y: ' + Math.floor(Math.random() * 100);
+        }
+
+        function addMissionStep(step) {
+            const missionSteps = document.getElementById('mission-steps');
+            const stepElement = document.createElement('div');
+            stepElement.textContent = step;
+            missionSteps.appendChild(stepElement);
+        }
+
+        function executeMission() {
+            const missionSteps = document.getElementById('mission-steps');
+            console.log('Executing mission with ' + missionSteps.children.length + ' steps');
+            // Here you would typically send the mission steps to the hexapod for execution
+            missionSteps.innerHTML = ''; // Clear mission steps after execution
+        }
+
+        // Keyboard controls
+        document.addEventListener('keydown', function(event) {
+            switch(event.key.toLowerCase()) {
+                case 'w':
+                    controlHexapod('forward');
+                    break;
+                case 's':
+                    controlHexapod('backward');
+                    break;
+                case 'a':
+                    controlHexapod('left');
+                    break;
+                case 'd':
+                    controlHexapod('right');
+                    break;
+                case 'x':
+                    controlHexapod('stop');
+                    break;
+            }
+        });
+
+        // Update sensor values and robotics details every second
+        setInterval(() => {
+            updateGyroValues();
+            updateRoboticsDetails();
+        }, 1000);
+    </script>
+</body>
+</html>
