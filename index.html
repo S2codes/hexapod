@@ -74,8 +74,36 @@
                 <button onclick="standMission()">Stand</button>
                 <button onclick="SwingPhase()">Swing Phase</button>
                 <button onclick="StancePhase()">Stance Phase</button>
+
                 <button onclick="moveBackword()">Backword</button>
 
+                <button onclick="turnLeftMission()">Turn Left</button>
+                <button onclick="turnRightMission()">Turn Right</button>
+
+            </div>
+            <div class="btnGroup" style="margin-top: 10px;">
+
+                <!-- <button onclick="executeMission()">Start</button> -->
+                <button onclick="moveFrontLegPair()">Move Front Leg Pair</button>
+                <button onclick="moveMiddleLegPair()">Move Middle Leg Pair</button>
+                <button onclick="moveLastLegPair()">Move Last Leg Pair</button>
+
+                <button onclick="expandFront()">expandFront</button>
+                <button onclick="moveForwardMiddleLegs()">moveForwardMiddleLegs</button>
+                <button onclick="pauseMission()">Pause</button>
+                <button onclick="stopMission()">Stop</button>
+                <button onclick="sitMission()">Sit</button>
+                <button onclick="standMission()">Stand</button>
+                <button onclick="SwingPhase()">Swing Phase</button>
+                <button onclick="StancePhase()">Stance Phase</button>
+
+                <button onclick="moveBackword()">Backword</button>
+
+                <button onclick="turnLeftMission()">Turn Left</button>
+                <button onclick="turnRightMission()">Turn Right</button>
+                <button onclick="defaultMission()">90 deg</button>
+                <input type="text" id="inputDeg" placeholder="Write angle" type="number" min="0" max="0"
+                    style="padding: 10px;">
             </div>
             <div class="slider-container">
                 <h3>Speed Control</h3>
@@ -135,6 +163,7 @@
                 <div id="mission-steps"></div>
                 <button class="control-btn" onclick="executeMission()">Execute Mission</button>
 
+                <a href="settings.html">Settings</a>
             </div>
 
 
@@ -142,11 +171,18 @@
     </div>
 
 
-    <script src="./assets/js/stream.js"></script>
     <script src="./assets/js/socketConnection.js"></script>
+    <script src="./assets/js/turnRight.js"></script>
+    <script src="./assets/js/turnLeft.js"></script>
+    <script src="./assets/js/stream.js"></script>
     <script src="./assets/js/Controls.js"></script>
     <script src="./assets/js/backword.js"></script>
     <script src="./assets/js/sit.js"></script>
+    <script src="./assets/js/stair/moveForwardMiddleLegs.js"></script>
+    <script src="./assets/js/stair/expandFront.js"></script>
+    <script src="./assets/js/defaultMission.js"></script>
+    <script src="./assets/js/moveLegPair.js"></script>
+
 
     <script>
         let missionSteps = [];
@@ -209,50 +245,51 @@
             isExecuting = true;
             currentStep = 0;
             // updateMissionStepsList();
-            console.log("Siting ...");
+            console.log("start ...");
+            let angle = 0;
             let missionData = {
-                "servo2": 135, // Leg1coxa 180 -> servo go  front | 0 -> servo go  back  
-                "servo1": 90, //  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down 
-                "servo0": 90, //  Leg1Tibia 180 ->   servo go down | 0 ->   servo go up
+                "servo2": angle, // Leg1coxa 180 -> servo go  front | 0 -> servo go  back  
+                "servo1": angle, //  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down 
+                "servo0": angle, //  Leg1Tibia 180 ->   servo go down | 0 ->   servo go up
 
-                "servo3": 90, // Leg3Tibia || 180 ->  down and 0 -> up 
-                "servo4": 90, //  Leg3Femur || 180 ->  up and 0 -> down
-                "servo5": 90, //  Leg3coxa || 180 ->  front and 0 -> back
+                "servo3": angle, // Leg3Tibia || 180 ->  down and 0 -> up 
+                "servo4": angle, //  Leg3Femur || 180 ->  up and 0 -> down
+                "servo5": angle, //  Leg3coxa || 180 ->  front and 0 -> back
 
-                "servo6": 90,
-                "servo7": 90,
-                "servo8": 90,
-                "servo9": 90,
+                "servo6": angle,
+                "servo7": angle,
+                "servo8": angle,
+                "servo9": angle,
 
-                "servo10": 90,  // Leg4coxa |  180 - back or 0 - front
-                "servo11": 95,  // Leg4Femur |  0 - up or 180 -down 
-                "servo12": 90,  // Leg4Tibia |  0 - down  or 180 up   
+                "servo10": angle,  // Leg4coxa |  180 - back or 0 - front
+                "servo11": angle,  // Leg4Femur |  0 - up or 180 -down 
+                "servo12": angle,  // Leg4Tibia |  0 - down  or 180 up   
 
-                "servo13": 45, // Leg2coxa | 180 - back or 0 -> front    
-                "servo14": 90, // Leg2Femur |  0 - up or 180 -down
-                "servo15": 90, // Leg2Tibia |  0 - down  
+                "servo13": angle, // Leg2coxa | 180 - back or 0 -> front    
+                "servo14": angle, // Leg2Femur |  0 - up or 180 -down
+                "servo15": angle, // Leg2Tibia |  0 - down  
 
-                "servo16": 110,  // Leg6Tibia |  0 -> down  and 180 -> up 
-                "servo17": 90,  // Leg6Femur |  0 -  up and 180 -> down 
-                "servo18": 155,  // Leg6coxa  | 180 -> back and 0->  
+                "servo16": angle,  // Leg6Tibia |  0 -> down  and 180 -> up 
+                "servo17": angle,  // Leg6Femur |  0 -  up and 180 -> down 
+                "servo18": angle,  // Leg6coxa  | 180 -> back and 0->  
 
-                "servo19": 90,
-                "servo20": 90,
-                "servo21": 90,
+                "servo19": angle,
+                "servo20": angle,
+                "servo21": angle,
 
-                "servo22": 90,
-                "servo23": 90,
-                "servo24": 90,
+                "servo22": angle,
+                "servo23": angle,
+                "servo24": angle,
 
-                "servo25": 90,
-                "servo26": 90,
-                "servo27": 90,
+                "servo25": angle,
+                "servo26": angle,
+                "servo27": angle,
 
-                "servo28": 90,
+                "servo28": angle,
 
-                "servo29": 65,   //  Leg5coxa  | 180 - front | 0 -> back
-                "servo30": 120,  //  Leg5Femur |  180 ->  up | 0 -> down 
-                "servo31": 90, //   Leg5Tibia |  0 -> up | 180 -> down 
+                "servo29": angle,   //  Leg5coxa  | 180 - front | 0 -> back
+                "servo30": angle,  //  Leg5Femur |  180 ->  up | 0 -> down 
+                "servo31": angle, //   Leg5Tibia |  0 -> up | 180 -> down 
 
 
             };
@@ -318,7 +355,7 @@
 
                 servo28: 90,
             };
-            
+
             let jsondData = JSON.stringify(missionData);
             // console.log(jsondData);
             // console.log(typeof (jsondData));
@@ -456,3 +493,8 @@ while even number legs are on the right side ( i = 2 , 4 , 6 ).
 then give a flowchart or algorithm to move forward of hexapod
 
  -->
+
+
+
+
+

@@ -11,8 +11,8 @@ WebSocketsServer websockets(81);  // port for web socket
 Adafruit_PWMServoDriver board1 = Adafruit_PWMServoDriver(0x40);
 Adafruit_PWMServoDriver board2 = Adafruit_PWMServoDriver(0x41);
 
-#define SERVOMIN 125  // minimum pulse length count (out of 4096)
-#define SERVOMAX 575  // maximum pulse length count (out of 4096)
+#define SERVOMIN 50  // minimum pulse length count (out of 4096)
+#define SERVOMAX 330  // maximum pulse length count (out of 4096)
 
 void notFound(AsyncWebServerRequest *request) {
   request->send(404, "text/plain", "Page Not Found");
@@ -43,7 +43,7 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
       }
 
       // Iterate over servo data received in JSON
-      for (int i = 0; i <= 12; i++) {  // assuming 12 servos, adjust this based on your setup
+      for (int i = 0; i <= 31; i++) {  // assuming 12 servos, adjust this based on your setup
         String servoKey = "servo" + String(i);
         if (doc.containsKey(servoKey)) {
           int angle = doc[servoKey];

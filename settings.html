@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leg Measurement Input</title>
+    <link rel="stylesheet" href="./assets/css/settings.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="title">Leg Measurement Input</h1>
+        <div class="status-item" id="ConnectionStatus">
+            <!-- <i class="icon bi bi-wifi status-icon"></i> -->
+            <i class="bi bi-wifi-off status-icon"></i>
+            <div class="status-label">Connection</div>
+            <div id="signal" class="status-value">Disconnected</div>
+        </div>
+        <form id="legForm" class="form">
+            <div class="leg-container">
+                <div class="leg-group">
+                    <h3>Leg 1</h3>
+                    <div class="d-flex">
+                        Coxa : <input type="number" name="leg1-coxa" value="90" placeholder="Leg 1 coxa" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Femur :<input type="number" name="leg1-femur" value="90" placeholder="Leg 1 femur" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Tibia :<input type="number" name="leg1-tibia" value="90" placeholder="Leg 1 tibia" class="input"
+                            required>
+                    </div>
+                </div>
+                <div class="leg-group">
+                    <h3>Leg 2</h3>
+                    <div class="d-flex">
+                        Coxa : <input type="number" name="leg2-coxa" value="90" placeholder="Leg 2 coxa" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Femur :<input type="number" name="leg2-femur" value="90" placeholder="Leg 2 femur" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Tibia :<input type="number" name="leg2-tibia" value="90" placeholder="Leg 2 tibia" class="input"
+                            required>
+                    </div>
+                </div>
+                <div class="leg-group">
+                    <h3>Leg 3</h3>
+                    <div class="d-flex">
+                        Coxa : <input type="number" name="leg3-coxa" value="90" placeholder="Leg 3 coxa" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Femur :<input type="number" name="leg3-femur" value="90" placeholder="Leg 3 femur" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Tibia :<input type="number" name="leg3-tibia" value="90" placeholder="Leg 3 tibia" class="input"
+                            required>
+                    </div>
+                </div>
+                <div class="leg-group">
+                    <h3>Leg 4</h3>
+                    <div class="d-flex">
+                        Coxa : <input type="number" name="leg4-coxa" value="90" placeholder="Leg 4 coxa" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Femur :<input type="number" name="leg4-femur" value="90" placeholder="Leg 4 femur" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Tibia :<input type="number" name="leg4-tibia" value="90" placeholder="Leg 4 tibia" class="input"
+                            required>
+                    </div>
+                </div>
+                <div class="leg-group">
+                    <h3>Leg 5</h3>
+                    <div class="d-flex">
+                        Coxa : <input type="number" name="leg5-coxa" value="90" placeholder="Leg 5 coxa" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Femur : <input type="number" name="leg5-femur" value="90" placeholder="Leg 5 femur"
+                            class="input" required>
+                    </div>
+                    <div class="d-flex">
+                        Tibia : <input type="number" name="leg5-tibia" value="90" placeholder="Leg 5 tibia"
+                            class="input" required>
+                    </div>
+                </div>
+                <div class="leg-group">
+                    <h3>Leg 6</h3>
+                    <div class="d-flex">
+                        Coxa : <input type="number" name="leg6-coxa" value="90" placeholder="Leg 6 coxa" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Femur :<input type="number" name="leg6-femur" value="90" placeholder="Leg 6 femur" class="input"
+                            required>
+                    </div>
+                    <div class="d-flex">
+                        Tibia :<input type="number" name="leg6-tibia" value="90" placeholder="Leg 6 tibia" class="input"
+                            required>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="submit-button">Submit</button>
+        </form>
+<div style="margin: 20px;"></div>
+        <button onclick="moveLeg()">Backword</button>
+        <button onclick="FrontLegHookandExpandMiddleLast()">FrontLegHookandExpandMiddleLast</button>
+        <button onclick="moveMidleAndLastLegPairForward()">moveMidleAndLastLegPairForward</button>
+        <button onclick="liftFrontTwo()">liftFrontTwo</button>
+        <button onclick="moveLastLegPairForward()">moveLastLegPairForward</button>
+        <button onclick="middleLegsHook()">middleLegsHook</button>
+        <button onclick="lastLegsHook()">lastLegsHook</button>
+        <button onclick="moveFrontForward()">moveFrontForward</button>
+        <button onclick="moveFrontLay()">moveFrontLay</button>
+        <button onclick="moveMiddleLay()">moveMiddleLay</button>
+        <button onclick="moveFrontRow()">moveFrontRow</button>
+
+    </div>
+    <script src="./assets/js/socketConnection.js"></script>
+    <script src="./assets/js/settings.js"></script>
+</body>
+
+</html>
