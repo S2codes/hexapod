@@ -5,7 +5,7 @@
 #include <ESPAsyncWebServer.h>
 #include <WebSocketsServer.h>
 #include <ArduinoJson.h>
-#include <Ramp.h>
+
 
 
 // // Leg 1
@@ -52,6 +52,12 @@ WebSocketsServer websockets(81);  // port for web socket
 bool gait1Status = false;
 bool gait2Status = false;
 
+bool gait1ReverseStatus = false;
+bool gait2ReverseStatus = false;
+
+bool gait1LayStatus = false;
+bool gait2LayStatus = false;
+
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) {
   switch (type) {
     case WStype_DISCONNECTED:
@@ -79,11 +85,27 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
           delay(500);
         }
         if (message.equals("forward")) {
-
           gait1();
           delay(200);
           if (gait1Status) {
             gait2();
+          }
+          delay(500);
+        }
+        if (message.equals("backward")) {
+          gait1Reverse();
+          delay(200);
+          if (gait1ReverseStatus) {
+            gait2Reverse();
+          }
+          delay(500);
+        }
+
+        if (message.equals("forwardlay")) {
+          gait1Lay();
+          delay(200);
+          if (gait1LayStatus) {
+            gait2Lay();
           }
           delay(500);
         }
@@ -131,6 +153,75 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length)
         }
         if (message.equals("expandMiddle")) {
           expandMiddle();
+          delay(500);
+        }
+        if (message.equals("FrontLegHookandExpandMiddleLast")) {
+          FrontLegHookandExpandMiddleLast();
+          delay(500);
+        }
+        if (message.equals("moveMidleAndLastLegPairForward")) {
+          moveMidleAndLastLegPairForward();
+          delay(500);
+        }
+        if (message.equals("liftFrontTwo")) {
+          liftFrontTwo();
+          delay(500);
+        }
+        if (message.equals("middleLegsHook")) {
+          middleLegsHook();
+          delay(500);
+        }
+        if (message.equals("moveLastLegPairForward")) {
+          moveLastLegPairForward();
+          delay(500);
+        }
+        if (message.equals("lastLegsHook")) {
+          lastLegsHook();
+          delay(500);
+        }
+        if (message.equals("moveFrontForward")) {
+          moveFrontForward();
+          delay(500);
+        }
+        if (message.equals("moveFrontLay")) {
+          moveFrontLay();
+          delay(500);
+        }
+        if (message.equals("moveMiddleLay")) {
+          moveMiddleLay();
+          delay(500);
+        }
+        if (message.equals("rotateLeft")) {
+          rotateLeft();
+          delay(500);
+        }
+        // stand 
+        if (message.equals("standLastTwo")) {
+          standLastTwo();
+          delay(500);
+        }
+        if (message.equals("standMiddleTwo")) {
+          standMiddleTwo();
+          delay(500);
+        }
+        if (message.equals("standFrontTwo")) {
+          standFrontTwo();
+          delay(500);
+        }
+        if (message.equals("moveMiddleAndLastLay")) {
+          moveMiddleAndLastLay();
+          delay(500);
+        }
+        if (message.equals("moveLastLay")) {
+          moveLastLay();
+          delay(500);
+        }
+        if (message.equals("moveFrontLegPairForward")) {
+          moveFrontLegPairForward();
+          delay(500);
+        }
+        if (message.equals("moveMiddleLegPairForward")) {
+          moveMiddleLegPairForward();
           delay(500);
         }
 
@@ -212,6 +303,25 @@ void servoWrite(int boardNumber, int pin, int angle) {
 
 
 void sit() {
+
+  stand();
+  delay(500);
+
+  int femurAngle = 90; // Initial angle
+  // Gradually move femur servos to 50 degrees
+  for (int angle = femurAngle; angle >= 50; angle -= 5) {
+    servoWrite(1, LEG2_FEMUR_PIN_b1, angle);
+    servoWrite(1, LEG4_FEMUR_PIN_b1, angle);
+    servoWrite(1, LEG6_FEMUR_PIN_b1, angle);
+    servoWrite(2, LEG1_FEMUR_PIN_b2, angle);
+    servoWrite(2, LEG3_FEMUR_PIN_b2, angle);
+    servoWrite(2, LEG5_FEMUR_PIN_b2, angle);
+    delay(50);
+  }
+
+  delay(150);
+
+
   servoWrite(1, LEG2_FEMUR_PIN_b1, 50);
   servoWrite(1, LEG4_FEMUR_PIN_b1, 50);
   servoWrite(1, LEG6_FEMUR_PIN_b1, 50);
@@ -234,6 +344,8 @@ void sit() {
   servoWrite(2, LEG3_COXA_PIN_b2, 90);
   servoWrite(2, LEG5_COXA_PIN_b2, 90);
   delay(200);
+
+
 }
 
 void stand() {
@@ -417,10 +529,9 @@ void moveLastTwo() {
   servoWrite(2, LEG5_COXA_PIN_b2, 90);
   servoWrite(1, LEG6_COXA_PIN_b1, 90);
   delay(500);
-
 }
 
-void frontLegHook(){
+void frontLegHook() {
   Serial.println("frontLegHook");
   servoWrite(2, LEG1_COXA_PIN_b2, 90);
   servoWrite(1, LEG2_COXA_PIN_b1, 90);
@@ -441,13 +552,12 @@ void frontLegHook(){
   servoWrite(2, LEG1_TIBIA_PIN_b2, 40);
   servoWrite(1, LEG2_TIBIA_PIN_b1, 40);
   delay(500);
-
 }
 
 
 
-void expandMiddle(){
-    // Swing Position
+void expandMiddle() {
+  // Swing Position
   servoWrite(2, LEG3_FEMUR_PIN_b2, 50);
   servoWrite(1, LEG4_FEMUR_PIN_b1, 50);
 
@@ -457,6 +567,9 @@ void expandMiddle(){
   servoWrite(2, LEG3_COXA_PIN_b2, 50);
   servoWrite(1, LEG4_COXA_PIN_b1, 50);
   delay(800);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 90);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 90);
+  delay(300);
 
   // Stance Position
   // servoWrite(2, LEG3_FEMUR_PIN_b2, 90);
@@ -471,7 +584,7 @@ void expandMiddle(){
 
   //--------------------------------------------
 
-   // Swing Position
+  // Swing Position
   // servoWrite(2, LEG5_FEMUR_PIN_b2, 50);
   // servoWrite(1, LEG6_FEMUR_PIN_b1, 50);
 
@@ -490,9 +603,481 @@ void expandMiddle(){
   // servoWrite(2, LEG5_COXA_PIN_b2, 90);
   // servoWrite(1, LEG6_COXA_PIN_b1, 90);
   // delay(500);
+}
+
+
+void moveMidleAndLastLegPairForward() {
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 170);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 170);
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 170);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 170);
+
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 90);
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 90);
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 90);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 90);
+
+  servoWrite(2, LEG3_COXA_PIN_b2, 70);
+  servoWrite(1, LEG4_COXA_PIN_b1, 70);
+  servoWrite(2, LEG5_COXA_PIN_b2, 120);
+  servoWrite(1, LEG6_COXA_PIN_b1, 120);
+  delay(2000);
+
+  // leg 3 stance
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 40);
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 10);
+  delay(1000);
+  // leg 3 swing
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 170);
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 90);
+  servoWrite(2, LEG3_COXA_PIN_b2, 50);
+  delay(3500);
+
+  // leg 4 stance
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 40);
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 10);
+  delay(1000);
+  // leg 4 swing
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 170);
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 90);
+  servoWrite(1, LEG4_COXA_PIN_b1, 50);
+  delay(3500);
+
+  // leg 5 stance
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 40);
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 10);
+  delay(1000);
+  // leg 5 swing
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 170);
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 90);
+  servoWrite(2, LEG5_COXA_PIN_b2, 50);
+  delay(3500);
+
+  // leg 6 stance
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 40);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 10);
+  delay(1000);
+  // leg 6 swing
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 170);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 50);
+  delay(3500);
+}
+
+
+void FrontLegHookandExpandMiddleLast() {
+
+  stand();
+  delay(800);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 50);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 50);
+
+  servoWrite(2, LEG3_COXA_PIN_b2, 50);
+  servoWrite(1, LEG4_COXA_PIN_b1, 50);
+  delay(800);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 90);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 90);
+  delay(800);
+
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 10);
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 10);
+  delay(800);
+
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 120);
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 120);
+  delay(800);
+
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 40);
+  servoWrite(1, LEG2_COXA_PIN_b1, 40);
+  delay(800);
+
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 30);
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 30);
+  delay(800);
+
+  // Movement ranges
+  const int femurStart = 90, femurEnd = 170;
+  const int tibiaStart = 10, tibiaEnd = 90;
+
+  // Calculate total steps
+  const int totalSteps = 100;  // Adjust this value to make the motion smoother or faster
+  const float femurIncrement = float(femurEnd - femurStart) / totalSteps;
+  const float tibiaIncrement = float(tibiaEnd - tibiaStart) / totalSteps;
+
+  for (int step = 0; step <= totalSteps; step++) {
+    int femurAngle = femurStart + step * femurIncrement;
+    int tibiaAngle = tibiaStart + step * tibiaIncrement;
+
+    servoWrite(2, LEG3_FEMUR_PIN_b2, femurAngle);
+    servoWrite(1, LEG4_FEMUR_PIN_b1, femurAngle);
+    servoWrite(2, LEG5_FEMUR_PIN_b2, femurAngle);
+    servoWrite(1, LEG6_FEMUR_PIN_b1, femurAngle);
+
+    servoWrite(2, LEG3_TIBIA_PIN_b2, tibiaAngle);
+    servoWrite(1, LEG4_TIBIA_PIN_b1, tibiaAngle);
+    servoWrite(2, LEG5_TIBIA_PIN_b2, tibiaAngle);
+    servoWrite(1, LEG6_TIBIA_PIN_b1, tibiaAngle);
+    delay(50);  // Delay to make the movement slow and smooth
+  }
+
+  delay(800);
+}
+
+
+void middleLegsHook() {
+
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 50);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 50);
+
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 120);
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 120);
+  delay(800);
+
+  servoWrite(2, LEG3_COXA_PIN_b2, 40);
+  servoWrite(1, LEG4_COXA_PIN_b1, 40);
+  delay(800);
+
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 90);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 90);
+  delay(800);
+
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 50);
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 50);
+  delay(800);
+}
+
+void moveMiddleLay() {
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 40);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 50);
+
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 10);
+  delay(800);
+
+  servoWrite(2, LEG3_COXA_PIN_b2, 50);
+  servoWrite(1, LEG4_COXA_PIN_b1, 50);
+  delay(800);
+
+}
+
+void moveFrontRow(){
+
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 40);
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 40);
+  delay(800);
+
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 10);
+  delay(800);
+
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 40);
+  servoWrite(1, LEG2_COXA_PIN_b1, 40);
+  delay(800);
 
 
 }
+
+
+void moveFrontLegPairForward() {
+
+
+  // leg 1 stance
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 40);
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 10);
+  servoWrite(2, LEG1_COXA_PIN_b2, 70);
+  delay(300);
+  // leg 1 swing
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 170);
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 90);
+  delay(500);
+
+  // leg 2 stance
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 40);
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 10);
+  servoWrite(1, LEG2_COXA_PIN_b1, 70);
+  delay(500);
+  // leg 2 swing
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 170);
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 90);
+  delay(500);
+  servoWrite(2, LEG1_COXA_PIN_b2, 100);
+  servoWrite(1, LEG2_COXA_PIN_b1, 100);
+  delay(500);
+}
+
+void moveMiddleLegPairForward() {
+
+  // leg 3 stance
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 40);
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 10);
+  servoWrite(2, LEG3_COXA_PIN_b2, 70);
+  delay(300);
+  // leg 3 swing
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 170);
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 90);
+  delay(500);
+
+  // leg 4 stance
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 40);
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 10);
+  servoWrite(1, LEG4_COXA_PIN_b1, 70);
+  delay(500);
+  // leg 4 swing
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 170);
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 90);
+  delay(500);
+  servoWrite(2, LEG3_COXA_PIN_b2, 100);
+  servoWrite(1, LEG4_COXA_PIN_b1, 100);
+  delay(500);
+}
+
+
+void moveLastLegPairForward() {
+
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 170);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 170);
+
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 90);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 90);
+
+  servoWrite(2, LEG5_COXA_PIN_b2, 120);
+  servoWrite(1, LEG6_COXA_PIN_b1, 120);
+  delay(2000);
+
+
+  // leg 5 stance
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 40);
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 10);
+  delay(1000);
+  // leg 5 swing
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 170);
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 90);
+  servoWrite(2, LEG5_COXA_PIN_b2, 50);
+  delay(3500);
+
+  // leg 6 stance
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 40);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 10);
+  delay(1000);
+  // leg 6 swing
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 170);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 50);
+  delay(3500);
+}
+
+
+
+void lastLegsHook() {
+
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 50);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 50);
+
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 120);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 120);
+  delay(800);
+
+  servoWrite(2, LEG5_COXA_PIN_b2, 25);
+  servoWrite(1, LEG6_COXA_PIN_b1, 25);
+  delay(800);
+
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 90);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 90);
+  delay(800);
+
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 20);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 20);
+  delay(800);
+}
+
+void liftFrontTwo() {
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 40);
+  servoWrite(1, LEG2_COXA_PIN_b1, 40);
+
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 110);
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 110);
+  delay(800);
+
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 10);
+  delay(800);
+}
+
+void moveFrontForward() {
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 40);
+  servoWrite(1, LEG2_COXA_PIN_b1, 40);
+
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 90);
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 90);
+  delay(800);
+
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 30);
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 30);
+  delay(800);
+
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 10);
+  delay(800);
+
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 120);
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 120);
+  delay(800);
+}
+
+// move lay 
+void moveFrontLay() {
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 40);
+  servoWrite(1, LEG2_COXA_PIN_b1, 40);
+  delay(800);
+
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 90);
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 90);
+  delay(800);
+
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 90);
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 90);
+  delay(800);
+}
+
+// move down middleAndlast
+void moveMiddleAndLastLay() {
+
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 30);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 30);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 30);  //
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 30);
+  delay(500);
+
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 10);  //
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 10);
+
+  delay(500);
+  servoWrite(2, LEG3_COXA_PIN_b2, 60);
+  servoWrite(1, LEG4_COXA_PIN_b1, 60);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 60);  //
+  servoWrite(1, LEG6_COXA_PIN_b1, 60);
+  delay(500);
+  //--------------------------------------------
+
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 65);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 65);  //
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 65);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 65);
+  delay(500);
+
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  delay(500);
+
+}
+
+void moveLastLay() {
+
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 30);  //
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 30);
+  delay(500);
+
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 10);
+
+  delay(500);
+  servoWrite(2, LEG5_COXA_PIN_b2, 60);  //
+  servoWrite(1, LEG6_COXA_PIN_b1, 60);
+  delay(500);
+  //--------------------------------------------
+
+  servoWrite(1, LEG5_FEMUR_PIN_b2, 65);
+  servoWrite(2, LEG6_FEMUR_PIN_b1, 65);
+  delay(500);
+
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  delay(500);
+
+}
+
+// stand 
+void standFrontTwo(){
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 40);
+  servoWrite(1, LEG2_COXA_PIN_b1, 40);
+  delay(500);
+
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 90);
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 90);
+  delay(500);
+
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 170);
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 170);
+  delay(500);
+  servoWrite(2, LEG1_COXA_PIN_b2, 90);
+  servoWrite(1, LEG2_COXA_PIN_b1, 90);
+  delay(800);
+
+}
+
+void standMiddleTwo(){
+
+  servoWrite(2, LEG3_COXA_PIN_b2, 70);
+  servoWrite(1, LEG4_COXA_PIN_b1, 70);
+  delay(500);
+  
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 90);
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 90);
+  delay(500);
+
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 170);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 170);
+  delay(500);
+  
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);
+  delay(800);
+
+
+}
+
+
+void standLastTwo(){
+
+  servoWrite(2, LEG5_COXA_PIN_b2, 40);
+  delay(300);
+
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 90);
+  delay(300);
+
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 170);
+  delay(300);
+  
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);
+  delay(500);
+
+  //-----------------------------
+  servoWrite(1, LEG6_COXA_PIN_b1, 40);
+  delay(300);
+
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 90);
+  delay(300);
+
+  servoWrite(1, LEG5_FEMUR_PIN_b2, 170);
+  delay(300);
+  
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  delay(800);
+
+}
+
+// stand 
+
 
 
 void gait1() {
@@ -578,3 +1163,270 @@ void gait2() {
   delay(500);
   gait2Status = true;
 }
+
+
+
+// revese gait 
+
+void gait1Reverse() {
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 50);  //
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 50);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 50);  //
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 90);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 90);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 90);
+  delay(500);
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 10);  //
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 10);
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 10);
+
+  delay(500);
+  servoWrite(2, LEG1_COXA_PIN_b2, 110);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 110);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 110);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  delay(500);
+  //--------------------------------------------
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 90);  //
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 90);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 90);  //
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 90);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 90);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 90);
+  delay(500);
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  delay(500);
+  gait1ReverseStatus = true;
+}
+
+void gait2Reverse() {
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 90);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 90);
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 90);
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 50);  //
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 50);  //
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 50);  //
+  delay(500);
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 10);  //
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 10);
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 10);
+
+  delay(500);
+  servoWrite(2, LEG1_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 110);
+  servoWrite(1, LEG6_COXA_PIN_b1, 110);
+  servoWrite(2, LEG3_COXA_PIN_b2, 110);
+  delay(500);
+  //--------------------------------------------
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 90);  //
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 90);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 90);  //
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 90);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 90);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 90);
+  delay(500);
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  delay(500);
+  gait2ReverseStatus = true;
+}
+
+// lay 
+
+void gait1Lay() {
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 10);  //
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 10);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 10);  //
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 60);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 60);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 60);
+  delay(500);
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 10);  //
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 10);
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 10);
+
+  delay(500);
+  servoWrite(2, LEG1_COXA_PIN_b2, 70);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 70);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 70);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  delay(500);
+  //--------------------------------------------
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 60);  //
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 60);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 60);  //
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 60);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 60);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 60);
+  delay(500);
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  delay(500);
+  gait1LayStatus = true;
+}
+
+void gait2Lay() {
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 60);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 60);
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 60);
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 10);  //
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 10);  //
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 10);  //
+  delay(500);
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 10);  //
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 10);
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 10);
+
+  delay(500);
+  servoWrite(2, LEG1_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 70);
+  servoWrite(1, LEG6_COXA_PIN_b1, 70);
+  servoWrite(2, LEG3_COXA_PIN_b2, 70);
+  delay(500);
+  //--------------------------------------------
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 60);  //
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 60);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 60);  //
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 60);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 60);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 60);
+  delay(500);
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  delay(500);
+  gait2LayStatus = true;
+}
+
+
+void rotateLeft() {
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 50);  //
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 50);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 50);  //
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 90);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 90);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 90);
+  delay(500);
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 10);  //
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 10);
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 10);
+
+  delay(500);
+  servoWrite(2, LEG1_COXA_PIN_b2, 70);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 110);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 70);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  delay(500);
+  //--------------------------------------------
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 90);  //
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 90);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 90);  //
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 90);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 90);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 90);
+  delay(500);
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  delay(1500);
+
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 90);
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 90);
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 90);
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 50);  //
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 50);  //
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 50);  //
+  delay(500);
+  servoWrite(2, LEG1_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG4_TIBIA_PIN_b1, 10);  //
+  servoWrite(2, LEG5_TIBIA_PIN_b2, 10);  //
+  servoWrite(1, LEG2_TIBIA_PIN_b1, 10);
+  servoWrite(2, LEG3_TIBIA_PIN_b2, 10);
+  servoWrite(1, LEG6_TIBIA_PIN_b1, 10);
+
+  delay(500);
+  servoWrite(2, LEG1_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 110);
+  servoWrite(1, LEG6_COXA_PIN_b1, 110);
+  servoWrite(2, LEG3_COXA_PIN_b2, 70);
+  delay(500);
+  //--------------------------------------------
+  servoWrite(2, LEG1_FEMUR_PIN_b2, 90);  //
+  servoWrite(1, LEG4_FEMUR_PIN_b1, 90);  //
+  servoWrite(2, LEG5_FEMUR_PIN_b2, 90);  //
+  servoWrite(1, LEG2_FEMUR_PIN_b1, 90);
+  servoWrite(1, LEG6_FEMUR_PIN_b1, 90);
+  servoWrite(2, LEG3_FEMUR_PIN_b2, 90);
+  delay(500);
+
+  servoWrite(2, LEG1_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG4_COXA_PIN_b1, 90);  //
+  servoWrite(2, LEG5_COXA_PIN_b2, 90);  //
+  servoWrite(1, LEG2_COXA_PIN_b1, 90);
+  servoWrite(1, LEG6_COXA_PIN_b1, 90);
+  servoWrite(2, LEG3_COXA_PIN_b2, 90);
+  delay(800);
+
+
+}
+
+
+
+
+
+
+
+
+
+

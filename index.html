@@ -79,6 +79,7 @@
 
                 <button onclick="turnLeftMission()">Turn Left</button>
                 <button onclick="turnRightMission()">Turn Right</button>
+                <button onclick="forwardlayMission()">forwardlay</button>
 
             </div>
             <div class="btnGroup" style="margin-top: 10px;">
@@ -97,11 +98,20 @@
                 <button onclick="SwingPhase()">Swing Phase</button>
                 <button onclick="StancePhase()">Stance Phase</button>
 
-                <button onclick="moveBackword()">Backword</button>
+                <button onclick="moveBackword()">LeftRotate</button>
 
                 <button onclick="turnLeftMission()">Turn Left</button>
                 <button onclick="turnRightMission()">Turn Right</button>
                 <button onclick="defaultMission()">90 deg</button>
+                <br><br>
+                <button onclick="standFrontTwo()">standFrontTwo</button>
+                <button onclick="standMiddleTwo()">standMiddleTwo</button>
+                <button onclick="standLastTwo()">standLastTwo</button>
+                <button onclick="moveMiddleAndLastLay()">moveMiddleAndLastLay</button>
+                <button onclick="moveLastLay()">moveLastLay</button>
+                <button onclick="moveFrontLegPairForward()">moveFrontLegPairForward</button>
+                <button onclick="moveMiddleLegPairForward()">moveMiddleLegPairForward</button>
+                
                 <input type="text" id="inputDeg" placeholder="Write angle" type="number" min="0" max="0"
                     style="padding: 10px;">
             </div>
@@ -239,6 +249,11 @@
             console.log(jsondData);
             console.log(typeof (jsondData));
             connection.send(jsondData)
+        }
+        
+        function forwardlayMission() {
+            connection.send("forwardlay")
+            
         }
 
         function extendLegMission() {

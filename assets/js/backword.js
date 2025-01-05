@@ -1,10 +1,11 @@
 // moveBackword
+console.log("backword");
 
 function moveBackword() {
     isExecuting = true;
     currentStep = 0;
     // updateMissionStepsList();
-    console.log("Backward ... ");
+    console.log("Backward l ... ");
     let missionData = {
         "servo2": 135, // Leg1coxa 180 -> servo go  front | 0 -> servo go  back  
         "servo1": 130, //  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down 
@@ -55,10 +56,39 @@ function moveBackword() {
 
     };
 
-    let jsondData = JSON.stringify(missionData);
-    console.log(jsondData);
-    console.log(typeof (jsondData));
-    connection.send(jsondData)
-    // connection.send("stand")
+    // let jsondData = JSON.stringify(missionData);
+    // console.log(jsondData);
+    // console.log(typeof (jsondData));
+    // connection.send(jsondData)
+    // connection.send("backward")
+    connection.send("rotateLeft")
 }
+
+function standFrontTwo() {
+    connection.send("standFrontTwo")
+}
+
+function standMiddleTwo() {
+    connection.send("standMiddleTwo")
+}
+
+function standLastTwo() {
+    connection.send("standLastTwo")
+}
+function moveMiddleAndLastLay() {
+    connection.send("moveMiddleAndLastLay")
+}
+function moveLastLay() {
+    connection.send("moveLastLay")
+}
+
+
+function moveFrontLegPairForward() {
+    connection.send("moveFrontLegPairForward"); 
+  }
+  function moveMiddleLegPairForward() {
+    connection.send("moveMiddleLegPairForward"); 
+  }
+  
+
 
