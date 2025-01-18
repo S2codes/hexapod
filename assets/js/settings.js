@@ -25,7 +25,7 @@ document.getElementById("legForm").addEventListener("submit", function (event) {
 
   // Initialize missionData with default values (90) for all servos
   const missionData = {};
-  
+
   for (let i = 0; i < 32; i++) {
     missionData[`servo${i}`] = 90; // Set default value of 90
   }
@@ -36,7 +36,7 @@ document.getElementById("legForm").addEventListener("submit", function (event) {
   inputs.forEach((input) => {
     const partName = input.name;
     const servoNumber = servoMapping[partName];
-    
+
     if (servoNumber !== undefined) {
       // Update only the specified servos with user input
       missionData[`servo${servoNumber}`] = parseInt(input.value, 10);
@@ -47,70 +47,107 @@ document.getElementById("legForm").addEventListener("submit", function (event) {
   console.log(missionData);
 
   let jsondData = JSON.stringify(missionData);
-  
+
   // Send the data through the connection
   connection.send(jsondData);
 });
 
-
 function moveLeg() {
   console.log("move leg");
-
-  // connection.send("moveleg1");
+    // connection.send("moveleg1");
   // connection.send("moveleg2");
   connection.send("moveleg3");
   connection.send("moveleg4");
   // connection.send("moveleg5");
   // connection.send("moveleg6");
   // connection.send("moveFrontTwo");
-//   connection.send("moveMiddleTwo");
-//   connection.send("moveLastTwo");
+  //   connection.send("moveMiddleTwo");
+  //   connection.send("moveLastTwo");
   // connection.send("frontLegHook");
   // connection.send("expandMiddle");
   // connection.send("moveMidleAndLastLegPairForward");
 }
+function moveLeg12() {
+  connection.send("moveleg1");
+  connection.send("moveleg2");
+}
+function moveLeg56() {
+  connection.send("moveleg5");
+  connection.send("moveleg6");
+}
+
+
 
 function FrontLegHookandExpandMiddleLast() {
-  connection.send("FrontLegHookandExpandMiddleLast"); 
+  connection.send("FrontLegHookandExpandMiddleLast");
 }
 
 function moveMidleAndLastLegPairForward() {
-  connection.send("moveMidleAndLastLegPairForward"); 
+  connection.send("moveMidleAndLastLegPairForward");
+}
+
+function moveMidleAndLastLegPairForward2() {
+  connection.send("moveMidleAndLastLegPairForward2");
 }
 
 function liftFrontTwo() {
-  connection.send("liftFrontTwo"); 
+  connection.send("liftFrontTwo");
 }
 
-
 function moveLastLegPairForward() {
-  connection.send("moveLastLegPairForward"); 
+  connection.send("moveLastLegPairForward");
+}
+function moveLastLegPairForwardAndHook() {
+  connection.send("moveLastLegPairForwardAndHook");
 }
 
 function middleLegsHook() {
-  connection.send("middleLegsHook"); 
+  connection.send("middleLegsHook");
 }
 function lastLegsHook() {
-  connection.send("lastLegsHook"); 
+  connection.send("lastLegsHook");
 }
 function moveFrontForward() {
-  connection.send("moveFrontForward"); 
+  connection.send("moveFrontForward");
 }
 
 function moveFrontLay() {
-  connection.send("moveFrontLay"); 
+  connection.send("moveFrontLay");
 }
 function moveMiddleLay() {
-  connection.send("moveMiddleLay"); 
+  connection.send("moveMiddleLay");
 }
 
 function moveFrontRow() {
-  connection.send("moveFrontRow"); 
+  connection.send("moveFrontRow");
+}
+
+
+function moveFistAndMiddleLay() {
+  connection.send("moveFistAndMiddleLay");
 }
 
 
 
+function moveFrontStraight() {
+  connection.send("moveFrontStraight");
+}
 
+function moveMiddleStraight() {
+  connection.send("moveMiddleStraight");
+}
+function moveLasttraight() {
+  connection.send("moveLasttraight");
+}
 
+function moveFront4pairForward() {
+  connection.send("moveFront4pairForward");
+}
 
+function liftLastTwoLeg() {
+  connection.send("liftLastTwoLeg");
+}
 
+function moveMidleAndLastLegPairForwardwithOutHook() {
+  connection.send("moveMidleAndLastLegPairForwardwithOutHook");
+}

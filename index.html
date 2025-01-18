@@ -49,12 +49,12 @@
 
             </div>
             <div class="controls">
-                <button onclick="control('rotateLeft')">↺ <span class="toolTip">L</span> </button>
+                <button onclick="control('rotateRight')">↺ <span class="toolTip">L</span> </button>
                 <button onclick="control('forward')">Forward <span class="toolTip">W</span></button>
-                <button onclick="control('rotateRight')">↻ <span class="toolTip">R</span></button>
-                <button onclick="control('left')">Left <span class="toolTip">A</span></button>
+                <button onclick="control('rotateLeft')">↻ <span class="toolTip">R</span></button>
+                <button onclick="control('rotateRight')">Left <span class="toolTip">A</span></button>
                 <button onclick="control('backward')">Backward <span class="toolTip">S</span></button>
-                <button onclick="control('right')">Right <span class="toolTip">D</span></button>
+                <button onclick="control('rotateLeft')">Right <span class="toolTip">D</span></button>
             </div>
 
             <div class="currentControl" id="currentControl">
@@ -99,19 +99,25 @@
                 <button onclick="StancePhase()">Stance Phase</button>
 
                 <button onclick="moveBackword()">LeftRotate</button>
+                <button onclick="rotateRight()">RightRotate</button>
 
                 <button onclick="turnLeftMission()">Turn Left</button>
                 <button onclick="turnRightMission()">Turn Right</button>
                 <button onclick="defaultMission()">90 deg</button>
                 <br><br>
-                <button onclick="standFrontTwo()">standFrontTwo</button>
-                <button onclick="standMiddleTwo()">standMiddleTwo</button>
-                <button onclick="standLastTwo()">standLastTwo</button>
-                <button onclick="moveMiddleAndLastLay()">moveMiddleAndLastLay</button>
-                <button onclick="moveLastLay()">moveLastLay</button>
-                <button onclick="moveFrontLegPairForward()">moveFrontLegPairForward</button>
-                <button onclick="moveMiddleLegPairForward()">moveMiddleLegPairForward</button>
-                
+
+                <div style="margin-top: 15px;">
+                    <button onclick="forwardlayMission()">forwardlay</button>
+                    <button onclick="standFrontTwo()">standFrontTwo</button>
+                    <button onclick="standMiddleTwo()">standMiddleTwo</button>
+                    <button onclick="standLastTwo()">standLastTwo</button>
+                    <button onclick="moveMiddleAndLastLay()">moveMiddleAndLastLay</button>
+                    <button onclick="moveFistAndMiddleLay()">moveFistAndMiddleLay</button>
+                    <button onclick="moveLastLay()">moveLastLay</button>
+                    <button onclick="moveFrontLegPairForward()">moveFrontLegPairForward</button>
+                    <button onclick="moveMiddleLegPairForward()">moveMiddleLegPairForward</button>
+                </div>
+
                 <input type="text" id="inputDeg" placeholder="Write angle" type="number" min="0" max="0"
                     style="padding: 10px;">
             </div>
@@ -182,12 +188,12 @@
 
 
     <script src="./assets/js/socketConnection.js"></script>
+    <script src="./assets/js/sit.js"></script>
+    <script src="./assets/js/stairdown.js"></script>
     <script src="./assets/js/turnRight.js"></script>
     <script src="./assets/js/turnLeft.js"></script>
     <script src="./assets/js/stream.js"></script>
     <script src="./assets/js/Controls.js"></script>
-    <script src="./assets/js/backword.js"></script>
-    <script src="./assets/js/sit.js"></script>
     <script src="./assets/js/stair/moveForwardMiddleLegs.js"></script>
     <script src="./assets/js/stair/expandFront.js"></script>
     <script src="./assets/js/defaultMission.js"></script>
@@ -201,224 +207,224 @@
 
 
 
-        function addStep(step) {
-            missionSteps.push(step);
-            updateMissionStepsList();
-        }
+        // function addStep(step) {
+        //     missionSteps.push(step);
+        //     updateMissionStepsList();
+        // }
 
-        function updateMissionStepsList() {
-            const list = document.getElementById('mission-steps');
-            list.innerHTML = '';
-            missionSteps.forEach((step, index) => {
-                const li = document.createElement('li');
-                li.textContent = step;
-                if (index === currentStep && isExecuting) {
-                    li.classList.add('active-step');
-                }
-                list.appendChild(li);
-            });
-        }
+        // function updateMissionStepsList() {
+        //     const list = document.getElementById('mission-steps');
+        //     list.innerHTML = '';
+        //     missionSteps.forEach((step, index) => {
+        //         const li = document.createElement('li');
+        //         li.textContent = step;
+        //         if (index === currentStep && isExecuting) {
+        //             li.classList.add('active-step');
+        //         }
+        //         list.appendChild(li);
+        //     });
+        // }
 
 
-        function executeMission() {
-            isExecuting = true;
-            currentStep = 0;
-            // updateMissionStepsList();
-            console.log("start ...");
-            let missionData = {
-                "servo0": 150, //coxa 1 anticlockwise
-                "servo1": 90, //coxa 2 anticlockwise
-                "servo2": 50,  //coxa 3 anticlockwise
-                "servo3": 150,//coxa 4 anticlockwise
-                "servo4": 90, //coxa 5 anticlockwise
-                "servo5": 50, //coxa 6 anticlockwise
-                "servo6": 180, //femur 1
-                "servo7": 180, //femur 2
-                "servo8": 180, //femur 3
-                "servo9": 0, // femur 4
-                "servo10": 0, // femur 5
-                "servo11": 0, //femur 6
-                "servo12": 0,
-                "servo13": 0,
-                "servo14": 180,
-                "servo15": 180,
-                "servo16": 90,
-                "servo17": 80
-            };
-            let jsondData = JSON.stringify(missionData);
-            console.log(jsondData);
-            console.log(typeof (jsondData));
-            connection.send(jsondData)
-        }
-        
+        // function executeMission() {
+        //     isExecuting = true;
+        //     currentStep = 0;
+        //     // updateMissionStepsList();
+        //     console.log("start ...");
+        //     let missionData = {
+        //         "servo0": 150, //coxa 1 anticlockwise
+        //         "servo1": 90, //coxa 2 anticlockwise
+        //         "servo2": 50,  //coxa 3 anticlockwise
+        //         "servo3": 150,//coxa 4 anticlockwise
+        //         "servo4": 90, //coxa 5 anticlockwise
+        //         "servo5": 50, //coxa 6 anticlockwise
+        //         "servo6": 180, //femur 1
+        //         "servo7": 180, //femur 2
+        //         "servo8": 180, //femur 3
+        //         "servo9": 0, // femur 4
+        //         "servo10": 0, // femur 5
+        //         "servo11": 0, //femur 6
+        //         "servo12": 0,
+        //         "servo13": 0,
+        //         "servo14": 180,
+        //         "servo15": 180,
+        //         "servo16": 90,
+        //         "servo17": 80
+        //     };
+        //     let jsondData = JSON.stringify(missionData);
+        //     console.log(jsondData);
+        //     console.log(typeof (jsondData));
+        //     connection.send(jsondData)
+        // }
+
         function forwardlayMission() {
             connection.send("forwardlay")
-            
+
         }
 
-        function extendLegMission() {
-            isExecuting = true;
-            currentStep = 0;
-            // updateMissionStepsList();
-            console.log("start ...");
-            let angle = 0;
-            let missionData = {
-                "servo2": angle, // Leg1coxa 180 -> servo go  front | 0 -> servo go  back  
-                "servo1": angle, //  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down 
-                "servo0": angle, //  Leg1Tibia 180 ->   servo go down | 0 ->   servo go up
+        // function extendLegMission() {
+        //     isExecuting = true;
+        //     currentStep = 0;
+        //     // updateMissionStepsList();
+        //     console.log("start ...");
+        //     let angle = 0;
+        //     let missionData = {
+        //         "servo2": angle, // Leg1coxa 180 -> servo go  front | 0 -> servo go  back  
+        //         "servo1": angle, //  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down 
+        //         "servo0": angle, //  Leg1Tibia 180 ->   servo go down | 0 ->   servo go up
 
-                "servo3": angle, // Leg3Tibia || 180 ->  down and 0 -> up 
-                "servo4": angle, //  Leg3Femur || 180 ->  up and 0 -> down
-                "servo5": angle, //  Leg3coxa || 180 ->  front and 0 -> back
+        //         "servo3": angle, // Leg3Tibia || 180 ->  down and 0 -> up 
+        //         "servo4": angle, //  Leg3Femur || 180 ->  up and 0 -> down
+        //         "servo5": angle, //  Leg3coxa || 180 ->  front and 0 -> back
 
-                "servo6": angle,
-                "servo7": angle,
-                "servo8": angle,
-                "servo9": angle,
+        //         "servo6": angle,
+        //         "servo7": angle,
+        //         "servo8": angle,
+        //         "servo9": angle,
 
-                "servo10": angle,  // Leg4coxa |  180 - back or 0 - front
-                "servo11": angle,  // Leg4Femur |  0 - up or 180 -down 
-                "servo12": angle,  // Leg4Tibia |  0 - down  or 180 up   
+        //         "servo10": angle,  // Leg4coxa |  180 - back or 0 - front
+        //         "servo11": angle,  // Leg4Femur |  0 - up or 180 -down 
+        //         "servo12": angle,  // Leg4Tibia |  0 - down  or 180 up   
 
-                "servo13": angle, // Leg2coxa | 180 - back or 0 -> front    
-                "servo14": angle, // Leg2Femur |  0 - up or 180 -down
-                "servo15": angle, // Leg2Tibia |  0 - down  
+        //         "servo13": angle, // Leg2coxa | 180 - back or 0 -> front    
+        //         "servo14": angle, // Leg2Femur |  0 - up or 180 -down
+        //         "servo15": angle, // Leg2Tibia |  0 - down  
 
-                "servo16": angle,  // Leg6Tibia |  0 -> down  and 180 -> up 
-                "servo17": angle,  // Leg6Femur |  0 -  up and 180 -> down 
-                "servo18": angle,  // Leg6coxa  | 180 -> back and 0->  
+        //         "servo16": angle,  // Leg6Tibia |  0 -> down  and 180 -> up 
+        //         "servo17": angle,  // Leg6Femur |  0 -  up and 180 -> down 
+        //         "servo18": angle,  // Leg6coxa  | 180 -> back and 0->  
 
-                "servo19": angle,
-                "servo20": angle,
-                "servo21": angle,
+        //         "servo19": angle,
+        //         "servo20": angle,
+        //         "servo21": angle,
 
-                "servo22": angle,
-                "servo23": angle,
-                "servo24": angle,
+        //         "servo22": angle,
+        //         "servo23": angle,
+        //         "servo24": angle,
 
-                "servo25": angle,
-                "servo26": angle,
-                "servo27": angle,
+        //         "servo25": angle,
+        //         "servo26": angle,
+        //         "servo27": angle,
 
-                "servo28": angle,
+        //         "servo28": angle,
 
-                "servo29": angle,   //  Leg5coxa  | 180 - front | 0 -> back
-                "servo30": angle,  //  Leg5Femur |  180 ->  up | 0 -> down 
-                "servo31": angle, //   Leg5Tibia |  0 -> up | 180 -> down 
-
-
-            };
+        //         "servo29": angle,   //  Leg5coxa  | 180 - front | 0 -> back
+        //         "servo30": angle,  //  Leg5Femur |  180 ->  up | 0 -> down 
+        //         "servo31": angle, //   Leg5Tibia |  0 -> up | 180 -> down 
 
 
-            let jsondData = JSON.stringify(missionData);
-
-            // console.log(jsondData);
-            // console.log(typeof (jsondData));
-            connection.send(jsondData)
-        }
+        //     };
 
 
-        function SwingPhase() {
-            isExecuting = true;
-            currentStep = 0;
-            // updateMissionStepsList();
-            console.log("SwingPhase ... ");
+        //     let jsondData = JSON.stringify(missionData);
 
-            let missionData = {
-                servo2: 100, // Leg1coxa 180 -> servo go  front | 0 -> servo go  back
-                servo1: 120, //  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down
-                servo0: 180, //  Leg1Tibia 180 ->   servo go down | 0 ->   servo go up
-
-                servo13: 85, // Leg2coxa | 180 - back or 0 -> front
-                servo14: 0, // Leg2Femur |  0 - up or 180 -down
-                servo15: 0, // Leg2Tibia |  0 - down
-
-                servo5: 65, //  Leg3coxa || 180 ->  front and 0 -> back
-                servo4: 180, //  Leg3Femur || 180 ->  up and 0 -> down
-                servo3: 185, // Leg3Tibia || 180 ->  down and 0 -> up
-
-                servo18: 145, // Leg6coxa  | 180 -> back and 0->
-                servo17: 5, // Leg6Femur |  0 -  up and 180 -> down
-                servo16: 10, // Leg6Tibia |  0 -> down  and 180 -> up
+        //     // console.log(jsondData);
+        //     // console.log(typeof (jsondData));
+        //     connection.send(jsondData)
+        // }
 
 
-                servo10: 100, // Leg4coxa |  180 - back or 0 - front
-                servo11: 52, // Leg4Femur |  0 - up or 180 -down
-                servo12: 0, // Leg4Tibia |  0 - down  or 180 up
+        // function SwingPhase() {
+        //     isExecuting = true;
+        //     currentStep = 0;
+        //     // updateMissionStepsList();
+        //     console.log("SwingPhase ... ");
 
-                servo29: 80, //  Leg5coxa  | 180 - front | 0 -> back
-                servo30: 145, //  Leg5Femur |  180 ->  up | 0 -> down
-                servo31: 185, //   Leg5Tibia |  0 -> up | 180 -> down
+        //     let missionData = {
+        //         servo2: 100, // Leg1coxa 180 -> servo go  front | 0 -> servo go  back
+        //         servo1: 120, //  Leg1Femur 180 ->  servo go up   | 0 ->  servo go down
+        //         servo0: 180, //  Leg1Tibia 180 ->   servo go down | 0 ->   servo go up
 
+        //         servo13: 85, // Leg2coxa | 180 - back or 0 -> front
+        //         servo14: 0, // Leg2Femur |  0 - up or 180 -down
+        //         servo15: 0, // Leg2Tibia |  0 - down
 
-                servo19: 90,
-                servo20: 90,
-                servo21: 90,
+        //         servo5: 65, //  Leg3coxa || 180 ->  front and 0 -> back
+        //         servo4: 180, //  Leg3Femur || 180 ->  up and 0 -> down
+        //         servo3: 185, // Leg3Tibia || 180 ->  down and 0 -> up
 
-                servo6: 90,
-                servo7: 90,
-                servo8: 90,
-                servo9: 90,
-
-                servo22: 90,
-                servo23: 90,
-                servo24: 90,
-
-                servo25: 90,
-                servo26: 90,
-                servo27: 90,
-
-                servo28: 90,
-            };
-
-            let jsondData = JSON.stringify(missionData);
-            // console.log(jsondData);
-            // console.log(typeof (jsondData));
-            connection.send(jsondData)
-        }
+        //         servo18: 145, // Leg6coxa  | 180 -> back and 0->
+        //         servo17: 5, // Leg6Femur |  0 -  up and 180 -> down
+        //         servo16: 10, // Leg6Tibia |  0 -> down  and 180 -> up
 
 
+        //         servo10: 100, // Leg4coxa |  180 - back or 0 - front
+        //         servo11: 52, // Leg4Femur |  0 - up or 180 -down
+        //         servo12: 0, // Leg4Tibia |  0 - down  or 180 up
+
+        //         servo29: 80, //  Leg5coxa  | 180 - front | 0 -> back
+        //         servo30: 145, //  Leg5Femur |  180 ->  up | 0 -> down
+        //         servo31: 185, //   Leg5Tibia |  0 -> up | 180 -> down
 
 
-        function StancePhase() {
-            isExecuting = true;
-            currentStep = 0;
-            // updateMissionStepsList();
-            console.log("Stance Phase ... ");
-            let missionData = {
-                "servo0": 95, //coxa 1 anticlockwise
-                "servo1": 0, //coxa 2 anticlockwise
-                "servo2": 0,  //coxa 3 anticlockwise
-                "servo3": 130,//coxa 4 anticlockwise
-                "servo4": 130, //coxa 5 anticlockwise
-                "servo5": 130, //coxa 6 anticlockwise
-                "servo6": 90, //femur 1
-                "servo7": 90, //femur 2
-                "servo8": 90, //femur 3
-                "servo9": 90, // femur 4
-                "servo10": 90, // femur 5
-                "servo11": 90, //femur 6
-                "servo12": 90,
-                "servo13": 90,
-                "servo14": 90,
-                "servo15": 90,
-                "servo16": 90,
-                "servo17": 80
-            };
-            let jsondData = JSON.stringify(missionData);
-            console.log(jsondData);
-            console.log(typeof (jsondData));
-            connection.send(jsondData)
-        }
+        //         servo19: 90,
+        //         servo20: 90,
+        //         servo21: 90,
+
+        //         servo6: 90,
+        //         servo7: 90,
+        //         servo8: 90,
+        //         servo9: 90,
+
+        //         servo22: 90,
+        //         servo23: 90,
+        //         servo24: 90,
+
+        //         servo25: 90,
+        //         servo26: 90,
+        //         servo27: 90,
+
+        //         servo28: 90,
+        //     };
+
+        //     let jsondData = JSON.stringify(missionData);
+        //     // console.log(jsondData);
+        //     // console.log(typeof (jsondData));
+        //     connection.send(jsondData)
+        // }
 
 
 
-        function stopMission() {
-            isExecuting = false;
-            currentStep = 0;
-            // updateMissionStepsList();
-            // In a real application, you would stop the robot and reset its position here
-        }
+
+        // function StancePhase() {
+        //     isExecuting = true;
+        //     currentStep = 0;
+        //     // updateMissionStepsList();
+        //     console.log("Stance Phase ... ");
+        //     let missionData = {
+        //         "servo0": 95, //coxa 1 anticlockwise
+        //         "servo1": 0, //coxa 2 anticlockwise
+        //         "servo2": 0,  //coxa 3 anticlockwise
+        //         "servo3": 130,//coxa 4 anticlockwise
+        //         "servo4": 130, //coxa 5 anticlockwise
+        //         "servo5": 130, //coxa 6 anticlockwise
+        //         "servo6": 90, //femur 1
+        //         "servo7": 90, //femur 2
+        //         "servo8": 90, //femur 3
+        //         "servo9": 90, // femur 4
+        //         "servo10": 90, // femur 5
+        //         "servo11": 90, //femur 6
+        //         "servo12": 90,
+        //         "servo13": 90,
+        //         "servo14": 90,
+        //         "servo15": 90,
+        //         "servo16": 90,
+        //         "servo17": 80
+        //     };
+        //     let jsondData = JSON.stringify(missionData);
+        //     console.log(jsondData);
+        //     console.log(typeof (jsondData));
+        //     connection.send(jsondData)
+        // }
+
+
+
+        // function stopMission() {
+        //     isExecuting = false;
+        //     currentStep = 0;
+        //     // updateMissionStepsList();
+        //     // In a real application, you would stop the robot and reset its position here
+        // }
 
         function control(direction) {
             console.log('Control:', direction);
@@ -426,62 +432,62 @@
             // In a real application, you would send control commands to the robot here
         }
 
-        // Create grid cells
-        // const grid = document.querySelector('.mission-grid');
-        // for (let i = 0; i < 25; i++) {
-        //     const cell = document.createElement('div');
-        //     cell.classList.add('grid-cell');
-        //     grid.appendChild(cell);
+        // // Create grid cells
+        // // const grid = document.querySelector('.mission-grid');
+        // // for (let i = 0; i < 25; i++) {
+        // //     const cell = document.createElement('div');
+        // //     cell.classList.add('grid-cell');
+        // //     grid.appendChild(cell);
+        // // }
+
+
+        // // Speed slider
+        // const speedSlider = document.getElementById('speed-slider');
+        // speedSlider.addEventListener('input', function () {
+        //     console.log('Speed set to:', this.value);
+        //     // In a real application, you would adjust the robot's speed here
+        // });
+
+
+
+        // // Function to handle keyboard shortcuts
+        // const currentControl = document.getElementById('currentControl')
+        // document.addEventListener('keydown', function (event) {
+        //     switch (event.key.toLowerCase()) {
+        //         case 'w':
+        //             control('forward');
+        //             currentControl.innerText = 'forward'
+        //             break;
+        //         case 'a':
+        //             currentControl.innerText = 'left'
+        //             control('left');
+        //             break;
+        //         case 's':
+        //             control('backward');
+        //             currentControl.innerText = 'backward'
+        //             break;
+        //         case 'd':
+        //             control('right');
+        //             currentControl.innerText = 'right'
+        //             break;
+        //         case 'r':
+        //             control('rotateRight');
+        //             currentControl.innerText = 'rotate Right'
+        //             break;
+        //         case 'l':
+        //             currentControl.innerText = 'rotate Left'
+        //             control('rotateLeft');
+        //             break;
+        //     }
+        // });
+
+
+        // function executeMission() {
+        //     const missionSteps = document.getElementById('mission-steps');
+        //     console.log('Executing mission with ' + missionSteps.children.length + ' steps');
+        //     // Here you would typically send the mission steps to the hexapod for execution
+        //     missionSteps.innerHTML = ''; // Clear mission steps after execution
         // }
-
-
-        // Speed slider
-        const speedSlider = document.getElementById('speed-slider');
-        speedSlider.addEventListener('input', function () {
-            console.log('Speed set to:', this.value);
-            // In a real application, you would adjust the robot's speed here
-        });
-
-
-
-        // Function to handle keyboard shortcuts
-        const currentControl = document.getElementById('currentControl')
-        document.addEventListener('keydown', function (event) {
-            switch (event.key.toLowerCase()) {
-                case 'w':
-                    control('forward');
-                    currentControl.innerText = 'forward'
-                    break;
-                case 'a':
-                    currentControl.innerText = 'left'
-                    control('left');
-                    break;
-                case 's':
-                    control('backward');
-                    currentControl.innerText = 'backward'
-                    break;
-                case 'd':
-                    control('right');
-                    currentControl.innerText = 'right'
-                    break;
-                case 'r':
-                    control('rotateRight');
-                    currentControl.innerText = 'rotate Right'
-                    break;
-                case 'l':
-                    currentControl.innerText = 'rotate Left'
-                    control('rotateLeft');
-                    break;
-            }
-        });
-
-
-        function executeMission() {
-            const missionSteps = document.getElementById('mission-steps');
-            console.log('Executing mission with ' + missionSteps.children.length + ' steps');
-            // Here you would typically send the mission steps to the hexapod for execution
-            missionSteps.innerHTML = ''; // Clear mission steps after execution
-        }
 
 
 
@@ -508,8 +514,3 @@ while even number legs are on the right side ( i = 2 , 4 , 6 ).
 then give a flowchart or algorithm to move forward of hexapod
 
  -->
-
-
-
-
-
